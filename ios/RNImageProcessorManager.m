@@ -18,7 +18,14 @@ RCT_EXTERN_METHOD(drawImageOnImage:
     sourceHeight: (CGFloat) sourceHeight
 )
 
-RCT_EXTERN_METHOD(drawMosaicImage: (NSArray *) imageNames name:(NSString *) name options:(NSDictionary *) options)
+RCT_EXTERN_METHOD(drawMosaicImage:
+    (NSArray *) imageNames
+    name:(NSString *) name
+    backgroundColor: (NSString *) backgroundColor
+    options:(NSDictionary *) options
+    resolve:(RCTPromiseResolveBlock) resolve
+    reject:(RCTPromiseRejectBlock) reject
+)
 
 RCT_EXTERN_METHOD(saveToGallery:(NSString *) name format: (NSString *) format)
 

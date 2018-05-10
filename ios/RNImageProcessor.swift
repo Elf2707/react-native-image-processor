@@ -83,7 +83,14 @@ class RNImageProcessor: NSObject {
         }
     }
 
-    @objc func drawMosaicImage(_ imageNames: Array<String>, name: String, options: Dictionary<String, CGFloat>) {
+    @objc func drawMosaicImage(
+        _ imageNames: Array<String>,
+        name: String,
+        backgroundColor: String,
+        options: Dictionary<String, CGFloat>,
+        resolve: @escaping RCTPromiseResolveBlock,
+        reject: RCTPromiseRejectBlock
+    ) {
         var resultImageData: Data?
         let canvasW = options["canvasWidth"] ?? DEFAULT_CANVAS_W
         let canvasH = options["canvasHeight"] ?? DEFAULT_CANVAS_H
@@ -94,41 +101,54 @@ class RNImageProcessor: NSObject {
         let startY = options["startY"] ?? 0
         let vertSpace = options["vertSpace"] ?? 0
         let horSpace = options["horSpace"] ?? 0
+        let backgroundColor = UIColor(hex: backgroundColor).cgColor
 
-        print("ttttttttttt\(imageNames)")
-        if #available(iOS 10, *) {
-            let renderFormat = UIGraphicsImageRendererFormat()
-            renderFormat.scale = 1.0
-            let imageRenderer = UIGraphicsImageRenderer(size: CGSize(width: canvasW, height: canvasH))
-            
-            resultImageData = imageRenderer.pngData(actions: { ctx in
+        DispatchQueue.global(qos: .utility).async {
+            if #available(iOS 10, *) {
+                let renderFormat = UIGraphicsImageRendererFormat()
+                renderFormat.scale = 1.0
+                let imageRenderer = UIGraphicsImageRenderer(size: CGSize(width: canvasW, height: canvasH), format: renderFormat)
+
+                resultImageData = imageRenderer.pngData(actions: { ctx in
+                    ctx.cgContext.setFillColor(backgroundColor)
+                    ctx.cgContext.fill(CGRect(x: 0, y: 0, width: canvasW, height: canvasH))
+                    for (idx, imageName) in imageNames.enumerated() {
+                        let columnIdx = CGFloat(idx % Int(columnsCount))
+                        let rowIdx = floor(CGFloat(idx) / columnsCount)
+                        let xCoord = startX + (imgCellW * columnIdx) + (horSpace * columnIdx)
+                        let yCoord = startY + (imgCellH * rowIdx) + (vertSpace * rowIdx)
+                        if let image = UIImage(contentsOfFile: imageName) {
+                            image.draw(in: CGRect(x: xCoord, y: yCoord, width: imgCellW, height: imgCellH))
+                        }
+                    }
+                })
+            } else {
+                UIGraphicsBeginImageContext(CGSize(width: canvasW, height: canvasH))
+                if let ctx = UIGraphicsGetCurrentContext() {
+                    ctx.setFillColor(backgroundColor)
+                    ctx.fill(CGRect(x: 0, y: 0, width: canvasW, height: canvasH))
+                }
+                
                 for (idx, imageName) in imageNames.enumerated() {
                     let columnIdx = CGFloat(idx % Int(columnsCount))
                     let rowIdx = floor(CGFloat(idx) / columnsCount)
-                    let xCoord = startX + (imgCellW * columnIdx) + (vertSpace * columnIdx)
-                    let yCoord = startY + (imgCellH * rowIdx) + (horSpace * rowIdx)
-                    if let image = getImageFromFile(name: imageName) {
+                    let xCoord = startX + (imgCellW * columnIdx) + (horSpace * columnIdx)
+                    let yCoord = startY + (imgCellH * rowIdx) + (vertSpace * rowIdx)
+                    if let image = UIImage(contentsOfFile: imageName) {
                         image.draw(in: CGRect(x: xCoord, y: yCoord, width: imgCellW, height: imgCellH))
                     }
                 }
-            })
-        } else {
-//            UIGraphicsBeginImageContext(CGSize(width: image.size.width, height: image.size.height))
-//
-//                image.draw(in: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
-//                #imageLiteral(resourceName: "launch_background").draw(in: CGRect(x: 100, y: 100, width: 470, height: 870))
-//
-//                if let myImage = UIGraphicsGetImageFromCurrentImageContext() {
-//                    imagesData[destImageName] = UIImagePNGRepresentation(myImage)
-//                }
-//
-//                UIGraphicsEndImageContext()
-//            }
-//
-//            saveToGallery(destImageName, format: "png")
-        }
 
-        imagesData[name] = resultImageData
+                if let myImage = UIGraphicsGetImageFromCurrentImageContext() {
+                    resultImageData = UIImagePNGRepresentation(myImage)
+                }
+                
+                UIGraphicsEndImageContext()
+            }
+            
+            self.imagesData[name] = resultImageData
+            resolve(true)
+        }
     }
     
     @objc func saveToGallery(_ name: String, format: String) {
@@ -149,18 +169,7 @@ class RNImageProcessor: NSObject {
                 UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
             }
         }
-    }
-    
-    func getImageFromFile(name: String) -> UIImage? {
-        let nsDocumentDirectory = FileManager.SearchPathDirectory.documentDirectory
-        let nsUserDomainMask = FileManager.SearchPathDomainMask.userDomainMask
-        let paths = NSSearchPathForDirectoriesInDomains(nsDocumentDirectory, nsUserDomainMask, true)
         
-        if let dirPath = paths.first {
-            let imageURL = URL(fileURLWithPath: dirPath).appendingPathComponent(name)
-            return UIImage(contentsOfFile: imageURL.path)
-        }
-        
-        return nil
+        imagesData[name] = nil
     }
 }

@@ -28,6 +28,7 @@
 		134814201AA4EA6300B7C361 /* libRNImageProcessor.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNImageProcessor.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7158B9F320A1E61D00D33DA2 /* RNImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNImageProcessor.swift; sourceTree = "<group>"; };
 		7158B9F520A2439B00D33DA2 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		715E760720A47DC2007F858D /* RNImageProcessor-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RNImageProcessor-Bridging-Header.h"; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RNImageProcessorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNImageProcessorManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -53,6 +54,7 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				715E760720A47DC2007F858D /* RNImageProcessor-Bridging-Header.h */,
 				7158B9F520A2439B00D33DA2 /* Extensions.swift */,
 				7158B9F320A1E61D00D33DA2 /* RNImageProcessor.swift */,
 				B3E7B5891CC2AC0600A0062D /* RNImageProcessorManager.m */,
@@ -167,6 +169,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "RNImageProcessor-Bridging-Header.h";
 			};
 			name = Debug;
 		};
@@ -203,6 +206,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "RNImageProcessor-Bridging-Header.h";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
