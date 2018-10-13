@@ -172,4 +172,8 @@ class RNImageProcessor: NSObject {
         
         imagesData[name] = nil
     }
+
+    static func requiresMainQueueSetup() -> Bool {
+        return false
+    }
 }
